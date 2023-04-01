@@ -1,0 +1,1 @@
+/usr/bin/gcc -g   CMakeFiles/untitled.dir/my_malloc.c.o CMakeFiles/untitled.dir/cmake-build-debug/my_malloc.c.o  -o untitled 

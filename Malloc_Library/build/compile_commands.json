@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/yc538/ECE650/pj1/build",
+  "command": "/usr/bin/gcc   -g   -std=gnu99 -o CMakeFiles/untitled.dir/my_malloc.c.o   -c /home/yc538/ECE650/pj1/my_malloc.c",
+  "file": "/home/yc538/ECE650/pj1/my_malloc.c"
+},
+{
+  "directory": "/home/yc538/ECE650/pj1/build",
+  "command": "/usr/bin/gcc   -g   -std=gnu99 -o CMakeFiles/untitled.dir/cmake-build-debug/my_malloc.c.o   -c /home/yc538/ECE650/pj1/cmake-build-debug/my_malloc.c",
+  "file": "/home/yc538/ECE650/pj1/cmake-build-debug/my_malloc.c"
+}
+]

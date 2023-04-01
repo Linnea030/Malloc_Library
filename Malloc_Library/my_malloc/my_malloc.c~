@@ -1,0 +1,170 @@
+#include "my_malloc.h"
+
+#include <limits.h>
+#include <stdio.h>
+#include <unistd.h>
+
+unsigned long get_data_segment_size() {
+  node * top = sbrk(0);
+  unsigned long size = top - headNode;
+  return size;
+}
+
+unsigned long get_data_segment_free_space_size() {
+  unsigned long size = 0;
+  node * curr = headNode;
+  while (curr != NULL) {
+    size += curr->size;
+    curr = curr->next;
+  }
+  return size;
+}
+
+void printList() {
+  if (headNode == NULL) {
+    printf("NULL\n");
+    return;
+  }
+  node * curr = headNode;
+  printf("here is list:\n");
+  while (curr != NULL) {
+    printf("Node address: %p, size: %lu\n", (char *)curr, curr->size);
+    curr = curr->next;
+  }
+}
+
+void printNode(node * curr) {
+  printf("Node address: %p, size: %lu\n", (char *)curr, curr->size);
+}
+
+//First Fit malloc/free
+void * ff_malloc(size_t size) {
+  //test!!!
+  //printf("in ff malloc\n");
+  //printList();
+  node * n1 = findNode_ff(size);
+
+  if (n1 == NULL) {
+    n1 = newNode(size);
+    //printList();
+    return (void *)n1 + sizeof(node);
+  }
+  removeNode(n1);
+  //test!!!
+  //printList();
+  return (void *)n1 + sizeof(node);
+}
+
+node * findNode_ff(size_t size) {
+  node * curr = headNode;
+  while (curr != NULL) {
+    if (curr->isFree && curr->size >= size) {
+      //test!!!
+      // printf("found node:  ");
+      //printNode(curr);
+      return curr;
+    }
+    else {
+      curr = curr->next;
+    }
+  }
+  //printf("no such node\n");
+  return NULL;
+}
+
+node * newNode(size_t size) {
+  void * nNode = sbrk(size + sizeof(node));
+  // printf("nNode address: %p   ", (char *)nNode);
+
+  //if sbrk failed
+  if (nNode == (void *)-1)
+    return NULL;
+  node * n1 = nNode;
+  n1->size = size;
+  n1->isFree = false;
+  n1->next = NULL;
+  n1->prev = NULL;
+  //printf("n1 address: %p   ", (char *)n1);
+  //test!!!
+  //printNode(n1);
+  //printf("sizeof(node):%lu\n", sizeof(node));
+
+  return n1;
+}
+
+void ff_free(void * ptr) {
+  //test!!!
+  // printf("in free\n");
+  if (ptr == NULL)
+    return;
+  node * n1 = (node *)((void *)ptr - sizeof(node));
+  /*printf("ptr address: %p, n1 address: %p, n1 size:%lu\n",
+         (char *)ptr,
+         (char *)n1,
+         n1->size);
+  */
+  addNode(n1);
+  //printNode(n1);
+  //printList();
+}
+
+void removeNode(node * n1) {
+  n1->isFree = false;
+  if (headNode == n1 && tailNode != n1) {
+    headNode = n1->next;
+    n1->next->prev = NULL;
+  }
+  else if (tailNode == n1 && headNode != n1) {
+
+    tailNode = n1->prev;
+    n1->prev->next = NULL;
+  }
+  else if (headNode == n1 && tailNode == n1) {
+    headNode = NULL;
+    tailNode = NULL;
+  }
+  else {
+    n1->prev->next = n1->next;
+    n1->next->prev = n1->prev;
+  }
+  n1->next = NULL;
+  n1->prev = NULL;
+}
+
+void addNode(node * n1) {
+  n1->isFree = true;
+  node * curr = headNode;
+  //if list is empty
+  if (headNode == NULL && tailNode == NULL) {
+    headNode = n1;
+    tailNode = n1;
+    return;
+  }
+  //insert before headnode
+  if (headNode >= n1) {
+    n1->next = headNode;
+    headNode->prev = n1;
+    headNode = n1;
+    return;
+  }
+  //insert after tailnode
+  if (tailNode <= n1) {
+    n1->prev = tailNode;
+    tailNode->next = n1;
+    tailNode = n1;
+  }
+  //if list is not empty
+  while (curr != NULL && curr->next != NULL) {
+    //insert between two nodes
+    if (curr < n1 && curr->next > n1) {
+      n1->next = curr->next;
+      n1->prev = curr;
+      curr->next->prev = n1;
+      curr->next = n1;
+      return;
+    }
+    else {
+      curr = curr->next;
+    }
+  }
+}
