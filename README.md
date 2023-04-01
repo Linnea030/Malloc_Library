@@ -3,3 +3,7 @@ Implement my own version of several memory allocation functions from the C stand
 Such as:
 
 void *malloc(size_t size); void free(void *ptr);
+
+`make`
+
+`./program_name`
